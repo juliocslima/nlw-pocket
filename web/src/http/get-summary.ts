@@ -1,4 +1,4 @@
-type SummaryResponse = {
+export type SummaryResponse = {
   completed: number
   total: number
   goalsPerDay: Record<

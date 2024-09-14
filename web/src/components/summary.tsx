@@ -4,31 +4,28 @@ import { DialogTrigger } from './ui/dialog'
 import { InOrbitIcon } from './in-orbit-icon'
 import { Progress, ProgressIndicator } from './ui/progress-bar'
 import { Separator } from './ui/separator'
-import { OutlineButton } from './ui/outline-button'
 import { useQuery } from '@tanstack/react-query'
-import { getSummary } from '../http/get-summary'
+import { SummaryResponse } from '../http/get-summary'
 import dayjs from 'dayjs'
 import ptBR from 'dayjs/locale/pt-br'
 import { PendingGoals } from './pending-goals'
 
 dayjs.locale(ptBR)
 
-export function Summary() {
-  const { data } = useQuery({
-    queryKey: ['summary'],
-    queryFn: getSummary,
-    staleTime: 60 * 1000,
-  })
+interface WeeklySummaryProps {
+  summary: SummaryResponse
+}
 
-  if (!data) return
-
+export function Summary({ summary }: WeeklySummaryProps) {
   const firstDayOfWeek = dayjs().startOf('week').format('D MMM')
   const lastDayOfWeek = dayjs().endOf('week').format('D MMM')
 
-  const completedPercentage = Math.round((data?.completed * 100) / data?.total)
+  const completedPercentage = Math.round(
+    (summary.completed * 100) / summary.total
+  )
 
   return (
-    <div className="py-10 max-w-[480px] px-5 mx-auto flex flex-col gap-6">
+    <main className="py-10 max-w-[480px] px-5 mx-auto flex flex-col gap-6">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-3">
           <InOrbitIcon />
@@ -51,8 +48,8 @@ export function Summary() {
         <div className="flex items-center justify-between text-xs text-zinc-400">
           <span>
             Você completou{' '}
-            <span className="text-zinc-100">{data?.completed}</span> de{' '}
-            <span className="text-zinc-100">{data?.total}</span> metas nessa
+            <span className="text-zinc-100">{summary.completed}</span> de{' '}
+            <span className="text-zinc-100">{summary.total}</span> metas nessa
             semana.
           </span>
           <span>{`${completedPercentage}%`}</span>
@@ -66,7 +63,7 @@ export function Summary() {
       <div className="flex flex-col gap-6">
         <h2 className="text-xl font-medium">Sua semana</h2>
 
-        {Object.entries(data.goalsPerDay).map(([date, goals]) => {
+        {Object.entries(summary.goalsPerDay).map(([date, goals]) => {
           const weekDay = dayjs(date).format('dddd')
           const formatedDate = dayjs(date).format('D[ de ]MMMM')
           return (
@@ -95,6 +92,6 @@ export function Summary() {
           )
         })}
       </div>
-    </div>
+    </main>
   )
 }
